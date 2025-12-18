@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Eye, ShieldX, Unlock, Lock, KeyRound, AlertTriangle } from 'lucide-react';
+import { Eye, ShieldX, Unlock, Lock, KeyRound, AlertTriangle, UserX, Ghost } from 'lucide-react';
 import { storage } from '../utils/storage';
 
-export default function DetectionAlert({ onAllow, onBlock, isVerifiedStatus }) {
+export default function DetectionAlert({ onAllow, onBlock, isVerifiedStatus, reason }) {
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+
+    const isIntruder = reason === 'IDENTITY_MISMATCH' || reason === 'INTRUDER_DETECTED';
 
     const handleClearScreen = () => {
         // Attempt verification again
@@ -14,7 +16,7 @@ export default function DetectionAlert({ onAllow, onBlock, isVerifiedStatus }) {
         } else {
             // If face not recognized, show password option
             setShowPasswordInput(true);
-            setError('Face not recognized. Please use backup password.');
+            setError('Biometric match failed. Internal security override required.');
         }
     };
 
@@ -23,55 +25,73 @@ export default function DetectionAlert({ onAllow, onBlock, isVerifiedStatus }) {
         if (storage.verifyPassword(password)) {
             onAllow(true); // Successful password clear (forced)
         } else {
-            setError('Incorrect password. Access denied.');
+            setError('Invalid master key. Lockout imminent.');
             setPassword('');
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in backdrop-blur-3xl bg-black/80">
-            <div className="max-w-md w-full p-8 rounded-3xl bg-gray-900/90 border-2 border-danger-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)] text-center space-y-8">
+        <div className={`fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in backdrop-blur-3xl ${isIntruder ? 'bg-red-950/90' : 'bg-black/90'}`}>
+            <div className={`max-w-md w-full p-10 rounded-[3rem] bg-gray-900 border-2 ${isIntruder ? 'border-red-500 shadow-[0_0_80px_rgba(239,68,68,0.5)]' : 'border-primary-500 shadow-[0_0_80px_rgba(14,165,233,0.3)]'} text-center space-y-10 relative overflow-hidden transition-all duration-500`}>
+
+                {isIntruder && (
+                    <div className="absolute inset-0 bg-red-500/5 animate-pulse-slow pointer-events-none" />
+                )}
 
                 {/* Warning Icon */}
                 <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-danger-500 blur-2xl opacity-20 animate-pulse" />
-                    <div className="relative w-24 h-24 rounded-full bg-danger-500/20 flex items-center justify-center mx-auto border-2 border-danger-500/30">
-                        <Eye className="w-12 h-12 text-danger-500" />
-                    </div>
+                    {isIntruder ? (
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-red-500 blur-3xl opacity-40 animate-pulse" />
+                            <div className="relative w-28 h-28 rounded-full bg-red-500/20 flex items-center justify-center mx-auto border-4 border-red-500/50 animate-bounce">
+                                <UserX className="w-16 h-16 text-red-500" />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary-500 blur-3xl opacity-20 animate-pulse" />
+                            <div className="relative w-28 h-28 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto border-4 border-primary-500/30">
+                                <Ghost className="w-16 h-16 text-primary-500" />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Warning Message */}
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-                        Security Alert
+                <div className="space-y-3">
+                    <h2 className={`text-4xl font-black tracking-tighter uppercase italic ${isIntruder ? 'text-red-500' : 'text-white'}`}>
+                        {isIntruder ? 'Security Breach' : 'Presence Lost'}
                     </h2>
-                    <p className="text-xl font-medium text-danger-400">
-                        Someone is watching your screen.
+                    <p className={`text-lg font-bold uppercase tracking-widest ${isIntruder ? 'text-red-400' : 'text-primary-400'}`}>
+                        {isIntruder ? 'Unauthorized Viewer Detected' : 'Monitoring Interrupted'}
                     </p>
-                    <p className="text-gray-400 text-sm">
-                        Screen protected by mandatory privacy shield.
+                    <p className="text-gray-500 text-xs font-medium px-4 leading-relaxed">
+                        {isIntruder
+                            ? 'A foreign identity was detected in the security perimeter. The screen has been hardware-locked.'
+                            : 'Registered identity is no longer in frame. Screen protected for your safety.'
+                        }
                     </p>
                 </div>
 
                 {!showPasswordInput ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 pt-2">
                         <button
                             onClick={handleClearScreen}
-                            className="w-full btn-primary bg-primary-500 hover:bg-primary-600 border-none py-5 text-xl font-black rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
+                            className={`w-full py-5 text-xl font-black rounded-[1.5rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl ${isIntruder ? 'bg-red-600 hover:bg-red-700 shadow-red-500/30' : 'btn-primary'}`}
                         >
                             <Unlock className="w-6 h-6" />
-                            Clear Screen
+                            Clear Shield
                         </button>
-                        <p className="text-xs text-gray-500 italic">
-                            Confirmation requires registered identity via Face or Password.
+                        <p className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">
+                            Biometric or Master Key Required
                         </p>
                     </div>
                 ) : (
-                    <form onSubmit={handlePasswordSubmit} className="space-y-5 animate-slide-up">
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-gray-300 text-sm mb-1">
-                                <KeyRound className="w-4 h-4 text-primary-500" />
-                                <span>Enter Backup Password</span>
+                    <form onSubmit={handlePasswordSubmit} className="space-y-6 animate-slide-up bg-black/40 p-6 rounded-[2rem] border border-white/5">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-center gap-2 text-primary-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                                <KeyRound className="w-3 h-3" />
+                                <span>Master Security Key</span>
                             </div>
                             <input
                                 type="password"
@@ -81,40 +101,37 @@ export default function DetectionAlert({ onAllow, onBlock, isVerifiedStatus }) {
                                     setPassword(e.target.value);
                                     setError('');
                                 }}
-                                className={`w-full bg-black border ${error ? 'border-danger-500' : 'border-gray-800'} rounded-2xl px-5 py-4 text-white text-center text-lg tracking-widest outline-none focus:border-primary-500 transition-all font-mono`}
-                                placeholder="••••••••"
+                                className={`w-full bg-transparent border-b-2 ${error ? 'border-red-500' : 'border-gray-800'} py-3 text-white text-center text-2xl tracking-[0.5em] outline-none focus:border-primary-500 transition-all font-mono placeholder:text-gray-800`}
+                                placeholder="••••"
                                 required
                             />
                             {error && (
-                                <div className="flex items-center justify-center gap-1.5 text-danger-400 text-sm animate-shake">
-                                    <AlertTriangle className="w-4 h-4" />
-                                    <span>{error}</span>
+                                <div className="text-red-500 text-[10px] font-bold uppercase tracking-widest animate-shake">
+                                    {error}
                                 </div>
                             )}
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-3">
+                            <button
+                                type="submit"
+                                className="w-full btn-primary py-4 text-sm"
+                            >
+                                Confirm Override
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => setShowPasswordInput(false)}
-                                className="py-4 text-gray-500 hover:text-white transition-colors text-sm font-bold uppercase tracking-wider"
+                                className="text-gray-600 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest"
                             >
-                                Try Face Again
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn-primary py-4 text-sm font-black rounded-xl uppercase tracking-widest shadow-lg shadow-primary-500/20"
-                            >
-                                Confirm
+                                Re-Scan Biometrics
                             </button>
                         </div>
                     </form>
                 )}
 
-                <div className="pt-4 border-t border-gray-800/50">
-                    <div className="flex items-center justify-center gap-2 text-gray-500 text-xs">
-                        <Lock className="w-3 h-3" />
-                        <span>On-Device Protection Active</span>
-                    </div>
+                <div className="pt-6 border-t border-white/5 flex items-center justify-center gap-2 opacity-30">
+                    <ShieldX className="w-4 h-4" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] font-mono">Vault Mode Alpha</span>
                 </div>
             </div>
         </div>

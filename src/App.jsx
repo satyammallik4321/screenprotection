@@ -9,6 +9,7 @@ import { storage } from './utils/storage';
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
   const [showAlert, setShowAlert] = useState(false);
+  const [alertReason, setAlertReason] = useState(null);
   const [detectedFace, setDetectedFace] = useState(null);
   const [isCurrentlyVerified, setIsCurrentlyVerified] = useState(false);
 
@@ -38,8 +39,9 @@ export default function App() {
     setCurrentScreen('home');
   };
 
-  const handleUnknownFaceDetected = (detection) => {
-    setDetectedFace(detection);
+  const handleUnknownFaceDetected = (alertData) => {
+    setDetectedFace(alertData.detection);
+    setAlertReason(alertData.reason);
     setShowAlert(true);
   };
 
@@ -96,6 +98,7 @@ export default function App() {
           onAllow={handleAllowViewing}
           onBlock={handleBlockScreen}
           isVerifiedStatus={isCurrentlyVerified}
+          reason={alertReason}
         />
       )}
     </div>
