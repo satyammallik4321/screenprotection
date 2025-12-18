@@ -102,10 +102,10 @@ export const detectMultipleFaces = async (videoElement) => {
 }
 
 // Compare two face descriptors
-export const compareFaces = (descriptor1, descriptor2, threshold = 0.55) => {
+export const compareFaces = (descriptor1, descriptor2, threshold = 0.6) => {
     if (!descriptor1 || !descriptor2) return false;
     const distance = faceapi.euclideanDistance(descriptor1, descriptor2);
-    // Lower distance = Higher similarity. 0.6 is default, 0.55 is slightly stricter but usually better with averaged vectors.
+    // Lower distance = Higher similarity. 0.6 is the robust default.
     return distance < threshold;
 };
 

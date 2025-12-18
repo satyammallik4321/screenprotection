@@ -19,32 +19,32 @@
     @apply px-8 py-4 rounded-2xl font-black text-white uppercase tracking-widest text-sm transition-all duration-300;
     background-color: #0ea5e9;
     box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  }
 
-    &:hover {
-      background-color: #0284c7;
-      box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
-      transform: scale(1.02);
-    }
+  .btn-primary:hover {
+    background-color: #0284c7;
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+    transform: scale(1.02);
+  }
 
-    &:active {
-      transform: scale(0.95);
-    }
+  .btn-primary:active {
+    transform: scale(0.95);
   }
 
   .btn-danger {
     @apply px-8 py-4 rounded-2xl font-black text-white uppercase tracking-widest text-sm transition-all duration-300;
     background-color: #ef4444;
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
 
-    &:hover {
-      background-color: #dc2626;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
-      transform: scale(1.02);
-    }
+  .btn-danger:hover {
+    background-color: #dc2626;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+    transform: scale(1.02);
+  }
 
-    &:active {
-      transform: scale(0.95);
-    }
+  .btn-danger:active {
+    transform: scale(0.95);
   }
 
   .card {

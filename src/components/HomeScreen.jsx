@@ -82,7 +82,7 @@ export default function HomeScreen({ onUnknownFaceDetected, onVerificationStatus
                         Privacy<span className="text-primary-500">Guard</span>
                     </h1>
                     <p className="text-gray-400 font-medium">
-                        On-Device Screen Protection
+                        On-Device Screen Protection <span className="text-[10px] opacity-30 ml-2">v1.5</span>
                     </p>
                 </div>
 

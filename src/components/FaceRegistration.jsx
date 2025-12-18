@@ -41,8 +41,9 @@ export default function FaceRegistration({ onComplete }) {
     };
 
     const performFaceDetection = async () => {
-        const maxAttempts = 10;
+        const maxAttempts = 15;
         let attempts = 0;
+        let angleSamples = [];
 
         const detectInterval = setInterval(async () => {
             attempts++;
@@ -51,41 +52,54 @@ export default function FaceRegistration({ onComplete }) {
             const detection = await detectFace(videoRef.current);
 
             if (detection) {
-                clearInterval(detectInterval);
-                descriptorsRef.current.push(Array.from(detection.descriptor));
+                angleSamples.push(Array.from(detection.descriptor));
 
-                if (captureStep < captureSteps.length - 1) {
-                    setCaptureStep(prev => prev + 1);
-                    setStepStatus('ready');
-                    setMessage('Great! Now ' + captureSteps[captureStep + 1].label);
-                    setProgress(0);
-                } else {
-                    // All steps complete - AVERAGE the biometric signatures for robustness
-                    const vectorSize = descriptorsRef.current[0].length;
-                    const averagedDescriptor = new Float32Array(vectorSize);
+                // For each angle, take 2 good samples to ensure quality
+                if (angleSamples.length >= 2) {
+                    clearInterval(detectInterval);
 
-                    for (let i = 0; i < vectorSize; i++) {
-                        let sum = 0;
-                        for (let j = 0; j < descriptorsRef.current.length; j++) {
-                            sum += descriptorsRef.current[j][i];
-                        }
-                        averagedDescriptor[i] = sum / descriptorsRef.current.length;
+                    // Average the samples for this specific angle
+                    const sampleSize = angleSamples[0].length;
+                    const avgAngleVector = new Float32Array(sampleSize);
+                    for (let i = 0; i < sampleSize; i++) {
+                        avgAngleVector[i] = (angleSamples[0][i] + angleSamples[1][i]) / 2;
                     }
 
-                    storage.saveFaceDescriptor(Array.from(averagedDescriptor));
-                    setStepStatus('ready');
-                    setMessage('Identity Vault Sealed!');
-                    stopCamera();
-                    setRegStep('password');
-                    setProgress(0);
+                    descriptorsRef.current.push(Array.from(avgAngleVector));
+
+                    if (captureStep < captureSteps.length - 1) {
+                        setCaptureStep(prev => prev + 1);
+                        setStepStatus('ready');
+                        setMessage('Excellent! Next: ' + captureSteps[captureStep + 1].label);
+                        setProgress(0);
+                    } else {
+                        // All 5 angles captured - final averaging
+                        const vectorSize = descriptorsRef.current[0].length;
+                        const finalDescriptor = new Float32Array(vectorSize);
+
+                        for (let i = 0; i < vectorSize; i++) {
+                            let sum = 0;
+                            for (let j = 0; j < descriptorsRef.current.length; j++) {
+                                sum += descriptorsRef.current[j][i];
+                            }
+                            finalDescriptor[i] = sum / descriptorsRef.current.length;
+                        }
+
+                        storage.saveFaceDescriptor(Array.from(finalDescriptor));
+                        setStepStatus('ready');
+                        setMessage('Identity Vault Sealed!');
+                        stopCamera();
+                        setRegStep('password');
+                        setProgress(0);
+                    }
                 }
             } else if (attempts >= maxAttempts) {
                 clearInterval(detectInterval);
-                setMessage('Could not detect face. Try again.');
+                setMessage('Detection too noisy. Please keep still and try again.');
                 setStepStatus('ready');
                 setProgress(0);
             }
-        }, 800);
+        }, 600);
     };
 
     const handleSetPassword = (e) => {
