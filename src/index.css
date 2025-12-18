@@ -4,36 +4,91 @@
 
 @layer base {
   body {
-    @apply m-0 p-0 font-sans antialiased bg-black min-h-screen overflow-x-hidden;
+    @apply m-0 p-0 font-sans antialiased text-white select-none bg-black;
+    background: radial-gradient(circle at top left, #0f172a, #000000);
+    min-height: 100vh;
   }
 }
 
 @layer components {
   .glass-effect {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10;
   }
 
   .btn-primary {
-    @apply px-6 py-3 rounded-xl font-semibold text-white;
-    @apply bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg shadow-blue-500/20;
+    @apply px-8 py-4 rounded-2xl font-black text-white uppercase tracking-widest text-sm transition-all duration-300;
+    background-color: #0ea5e9;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+
+    &:hover {
+      background-color: #0284c7;
+      box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+      transform: scale(1.02);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   .btn-danger {
-    @apply px-6 py-3 rounded-xl font-semibold text-white;
-    @apply bg-red-600 hover:bg-red-700 active:scale-95 transition-all duration-200 shadow-lg shadow-red-500/20;
+    @apply px-8 py-4 rounded-2xl font-black text-white uppercase tracking-widest text-sm transition-all duration-300;
+    background-color: #ef4444;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+
+    &:hover {
+      background-color: #dc2626;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+      transform: scale(1.02);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   .card {
-    @apply bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl;
+    @apply glass-effect rounded-[2.5rem] p-10;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-400 via-sky-500 to-purple-500 bg-clip-text text-transparent;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
 
-@layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent;
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
   }
 
-  .bg-app-gradient {
-    @apply bg-black;
+  50% {
+    opacity: 0.5;
   }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
 }

@@ -45,6 +45,12 @@ export default function App() {
 
   const handleVerificationStatusChange = (status) => {
     setIsCurrentlyVerified(status.isVerified);
+
+    // SEAMLESS RECOVERY: If the owner returns to the frame alone, automatically clear the alert
+    if (status.isVerified && showAlert) {
+      setShowAlert(false);
+      setDetectedFace(null);
+    }
   };
 
   const handleAllowViewing = (force = false) => {
@@ -69,8 +75,8 @@ export default function App() {
 
       {currentScreen === 'permission' && (
         <CameraPermission
-          onGranted={handlePermissionGranted}
-          onDenied={handlePermissionDenied}
+          onPermissionGranted={handlePermissionGranted}
+          onPermissionDenied={handlePermissionDenied}
         />
       )}
 

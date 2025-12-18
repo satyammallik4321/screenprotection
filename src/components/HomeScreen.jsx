@@ -123,7 +123,13 @@ export default function HomeScreen({ onUnknownFaceDetected, onVerificationStatus
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex flex-col items-end gap-2">
+                            {cameraActive && isProtectionActive && (
+                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-500/10 border border-success-500/20 text-success-500 text-[10px] font-black tracking-widest animate-fade-in">
+                                    <ShieldCheck className="w-3 h-3" />
+                                    IDENTITY CONFIRMED
+                                </div>
+                            )}
                             {cameraActive ? (
                                 <div className="bg-success-500/10 text-success-500 border border-success-500/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest">
                                     <div className="w-1.5 h-1.5 rounded-full bg-success-500 animate-ping" />
